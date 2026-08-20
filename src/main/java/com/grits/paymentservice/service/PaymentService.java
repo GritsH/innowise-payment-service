@@ -10,7 +10,6 @@ import com.grits.paymentservice.model.request.CreatePaymentRequest;
 import com.grits.paymentservice.model.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,30 +41,25 @@ public class PaymentService {
         return paymentMapper.toResponse(savedPayment);
     }
 
-    @Transactional(readOnly = true)
     public PaymentResponse getPaymentByOrderId(UUID orderId) {
         Payment payment = paymentDao.getPaymentsByOrderId(orderId);
         return paymentMapper.toResponse(payment);
     }
 
-    @Transactional(readOnly = true)
     public List<PaymentResponse> getPaymentsByUserId(UUID userId) {
         List<Payment> payments = paymentDao.getPaymentsByUserId(userId);
         return payments.stream().map(paymentMapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<PaymentResponse> getPaymentsByUserIdAndStatus(UUID userId, String status) {
         List<Payment> payments = paymentDao.getPaymentsByUserIdStatus(userId, status);
         return payments.stream().map(paymentMapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
     public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to) {
         return paymentDao.getTotalAmountByUserIdAndDateRange(userId, from, to);
     }
 
-    @Transactional(readOnly = true)
     public BigDecimal getTotalAmountByDateRange(LocalDateTime from, LocalDateTime to) {
         return paymentDao.getTotalAmountByDateRange(from, to);
     }

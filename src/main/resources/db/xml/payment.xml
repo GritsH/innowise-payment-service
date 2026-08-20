@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd"
-        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <changeSet id="user" author="grits">
-        <sqlFile path="db/sql/payment.sql"
-                 encoding="UTF-8"
-                 endDelimiter="''"
-                 dbms="postgresql"/>
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+            http://www.liquibase.org/xml/ns/mongodb
+            http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+
+    <changeSet id="payment-collection" author="grits">
+
+        <mongodb:createCollection
+                collectionName="payments"/>
+
+    </changeSet>
+
+    <changeSet id="payment-indexes" author="grits">
+
+        <mongodb:createIndex collectionName="payments">
+            <mongodb:keys>
+                { user_id: 1, order_id: 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_user_id_order_id" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
+        <mongodb:createIndex collectionName="payments">
+            <mongodb:keys>
+                { status: 1 }
+            </mongodb:keys>
+            <mongodb:options>
+                { name: "idx_status" }
+            </mongodb:options>
+        </mongodb:createIndex>
+
     </changeSet>
 </databaseChangeLog>

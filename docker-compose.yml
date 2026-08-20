@@ -21,24 +21,17 @@ services:
     networks:
       - default
 
-  payment-service-postgres:
-    image: postgres:17
-    container_name: payment-service-postgres
-    env_file:
-      - .env.docker
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+  payment-service-mongodb:
+    image: mongo:8.0
+    container_name: payment-service-mongodb
+    volumes:
+      - payment-service-mongodb-data:/data/db
     healthcheck:
       test:
-        [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+        ["CMD-SHELL","mongosh --quiet --eval \"db.adminCommand('ping').ok\""]
       interval: 5s
       timeout: 5s
       retries: 10
-    volumes:
-      - payment-service-postgres-data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - default
 
@@ -67,7 +60,7 @@ services:
       - default
 
 volumes:
-  payment-service-postgres-data:
+  payment-service-mongodb-data:
   kafka-data:
 
 networks:

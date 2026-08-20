@@ -5,12 +5,14 @@ import com.grits.paymentservice.entity.status.PaymentStatus;
 import com.grits.paymentservice.exception.InvalidPaymentStatusException;
 import com.grits.paymentservice.exception.PaymentNotFoundException;
 import com.grits.paymentservice.repository.PaymentRepository;
+import com.grits.paymentservice.repository.TotalAmountResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -46,10 +48,16 @@ public class PaymentDao {
     }
 
     public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to) {
-        return paymentRepository.getTotalAmountByUserIdAndDateRange(userId, from, to);
+        return paymentRepository
+                .getTotalAmountByUserIdAndDateRange(userId, from, to)
+                .map(TotalAmountResult::getTotal)
+                .orElse(BigDecimal.ZERO);
     }
 
     public BigDecimal getTotalAmountByDateRange(LocalDateTime from, LocalDateTime to) {
-        return paymentRepository.getTotalAmountByDateRange(from, to);
+        return paymentRepository
+                .getTotalAmountByDateRange(from, to)
+                .map(TotalAmountResult::getTotal)
+                .orElse(BigDecimal.ZERO);
     }
 }
