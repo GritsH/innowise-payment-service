@@ -4,6 +4,7 @@ import com.grits.paymentservice.client.RandomNumberClient;
 import com.grits.paymentservice.dao.PaymentDao;
 import com.grits.paymentservice.entity.Payment;
 import com.grits.paymentservice.entity.status.PaymentStatus;
+import com.grits.paymentservice.kafka.PaymentKafkaProducer;
 import com.grits.paymentservice.mapper.PaymentMapper;
 import com.grits.paymentservice.model.request.CreatePaymentRequest;
 import com.grits.paymentservice.model.response.PaymentResponse;
@@ -26,6 +27,8 @@ public class PaymentService {
 
     private final PaymentMapper paymentMapper;
 
+    private final PaymentKafkaProducer paymentKafkaProducer;
+
     public PaymentResponse createPayment(CreatePaymentRequest request) {
         String randomNumber = randomNumberClient.getRandomNumber(1, 1, 100, 1, 10, "plain", "new").trim();
         PaymentStatus status = Integer.parseInt(randomNumber) % 2 == 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
@@ -34,6 +37,8 @@ public class PaymentService {
         payment.setTimestamp(LocalDateTime.now());
         payment.setStatus(status);
         Payment savedPayment = paymentDao.createPayment(payment);
+
+        paymentKafkaProducer.sendPaymentCreatedEvent(savedPayment);
         return paymentMapper.toResponse(savedPayment);
     }
 
