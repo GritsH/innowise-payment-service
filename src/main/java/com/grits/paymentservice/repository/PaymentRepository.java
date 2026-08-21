@@ -2,8 +2,8 @@ package com.grits.paymentservice.repository;
 
 import com.grits.paymentservice.entity.Payment;
 import com.grits.paymentservice.entity.status.PaymentStatus;
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -20,15 +20,9 @@ public interface PaymentRepository extends MongoRepository<Payment, UUID> {
 
     List<Payment> findAllByUserIdAndStatus(UUID userId, PaymentStatus status);
 
-    @Aggregation(pipeline = {
-            "{ '$match': { 'user_id': ?0, 'timestamp': { '$gte': ?1, '$lte': ?2 } } }",
-            "{ '$group': { '_id': null, 'total': { '$sum': '$payment_amount' } } }"
-    })
-    Optional<TotalAmountResult> getTotalAmountByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to);
+    @Query("{ 'user_id': ?0, 'timestamp': { $gte: ?1, $lte: ?2 } }")
+    List<Payment> findPaymentsByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to);
 
-    @Aggregation(pipeline = {
-            "{ '$match': { 'timestamp': { '$gte': ?0, '$lte': ?1 } } }",
-            "{ '$group': { '_id': null, 'total': { '$sum': '$payment_amount' } } }"
-    })
-    Optional<TotalAmountResult> getTotalAmountByDateRange(LocalDateTime from, LocalDateTime to);
+    @Query("{ 'timestamp': { $gte: ?0, $lte: ?1 } }")
+    List<Payment> findPaymentsByDateRange(LocalDateTime from, LocalDateTime to);
 }

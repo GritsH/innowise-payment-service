@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "random-number-client",
-        url = "https://www.random.org"
+        url = "${random-number-client.url}"
 )
 public interface RandomNumberClient {
     @GetMapping("/integers")

@@ -1,6 +1,7 @@
 package com.grits.paymentservice.security;
 
 import lombok.experimental.UtilityClass;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -14,6 +15,6 @@ public class SecurityHelper {
     }
 
     public static boolean isNotAuthenticated(Authentication authentication) {
-        return authentication == null || authentication.getPrincipal() == null;
+        return authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken;
     }
 }
