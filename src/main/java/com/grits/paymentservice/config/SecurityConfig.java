@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/v1/payments/user/{userId}/status/{status}").access(paymentAuthorizationManager)
                         .requestMatchers(HttpMethod.GET, "/v1/payments/user/{userId}/total").access(paymentAuthorizationManager)
                         .requestMatchers(HttpMethod.GET, "/v1/payments/total").hasRole(ROLE_ADMIN)
+
+                        .requestMatchers(HttpMethod.GET, "/actuator/health/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
