@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,13 +45,13 @@ public class PaymentDao {
         return paymentRepository.findAllByUserIdAndStatus(userId, paymentStatus);
     }
 
-    public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to) {
+    public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, Instant from, Instant to) {
         return paymentRepository.findPaymentsByUserIdAndDateRange(userId, from, to).stream()
                 .map(Payment::getPaymentAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getTotalAmountByDateRange(LocalDateTime from, LocalDateTime to) {
+    public BigDecimal getTotalAmountByDateRange(Instant from, Instant to) {
         return paymentRepository.findPaymentsByDateRange(from, to).stream()
                 .map(Payment::getPaymentAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

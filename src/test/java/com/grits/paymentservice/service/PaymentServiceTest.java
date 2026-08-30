@@ -17,7 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,7 +74,7 @@ class PaymentServiceTest {
                 .orderId(orderId)
                 .userId(userId)
                 .status(PaymentStatus.SUCCESS)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .paymentAmount(new BigDecimal("999.99"))
                 .build();
     }
@@ -107,7 +108,7 @@ class PaymentServiceTest {
                 .orderId(orderId)
                 .userId(userId)
                 .status(PaymentStatus.FAILED)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .paymentAmount(new BigDecimal("999.99"))
                 .build();
 
@@ -188,8 +189,8 @@ class PaymentServiceTest {
     @Test
     @DisplayName("should get total amount by user id and date range")
     void getTotalAmountByUserIdAndDateRange() {
-        LocalDateTime from = LocalDateTime.now().minusDays(7);
-        LocalDateTime to = LocalDateTime.now();
+        Instant from = Instant.now().minus(7, ChronoUnit.DAYS);
+        Instant to = Instant.now();
         BigDecimal total = new BigDecimal("999.99");
 
         when(paymentDao.getTotalAmountByUserIdAndDateRange(userId, from, to)).thenReturn(total);
@@ -204,8 +205,8 @@ class PaymentServiceTest {
     @Test
     @DisplayName("should get total amount by date range")
     void getTotalAmountByDateRange() {
-        LocalDateTime from = LocalDateTime.now().minusDays(7);
-        LocalDateTime to = LocalDateTime.now();
+        Instant from = Instant.now().minus(7, ChronoUnit.DAYS);
+        Instant to = Instant.now();
         BigDecimal total = new BigDecimal("999.99");
 
         when(paymentDao.getTotalAmountByDateRange(from, to)).thenReturn(total);

@@ -12,10 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,7 +50,7 @@ class PaymentDaoTest {
         payment.setOrderId(orderId);
         payment.setUserId(userId);
         payment.setStatus(PaymentStatus.SUCCESS);
-        payment.setTimestamp(LocalDateTime.now());
+        payment.setTimestamp(Instant.now());
         payment.setPaymentAmount(new BigDecimal("999.99"));
     }
 
@@ -169,8 +168,8 @@ class PaymentDaoTest {
     @Test
     @DisplayName("should get total amount by user id and date range")
     void getTotalAmountByUserIdAndDateRange() {
-        LocalDateTime from = LocalDateTime.of(2026, 8, 21, 10, 0);
-        LocalDateTime to = LocalDateTime.of(2026, 8, 21, 18, 0);
+        Instant from = Instant.parse("2026-08-21T10:00:00Z");
+        Instant to = Instant.parse("2026-08-21T18:00:00Z");
         Payment payment1 = new Payment();
         payment1.setPaymentAmount(new BigDecimal("100.00"));
         Payment payment2 = new Payment();
@@ -189,8 +188,8 @@ class PaymentDaoTest {
     @Test
     @DisplayName("should get total amount by date range")
     void getTotalAmountByDateRange() {
-        LocalDateTime from = LocalDateTime.of(2026, 8, 21, 10, 0);
-        LocalDateTime to = LocalDateTime.of(2026, 8, 21, 18, 0);
+        Instant from = Instant.parse("2026-08-21T10:00:00Z");
+        Instant to = Instant.parse("2026-08-21T18:00:00Z");
         Payment payment1 = new Payment();
         payment1.setPaymentAmount(new BigDecimal("100.00"));
         Payment payment2 = new Payment();

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,13 +56,13 @@ public class PaymentController {
     }
 
     @GetMapping("/user/{userId}/total")
-    public ResponseEntity<BigDecimal> getTotalAmountByUserIdAndDateRange(@PathVariable UUID userId, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to) {
+    public ResponseEntity<BigDecimal> getTotalAmountByUserIdAndDateRange(@PathVariable UUID userId, @RequestParam Instant from, @RequestParam Instant to) {
         BigDecimal total = paymentService.getTotalAmountByUserIdAndDateRange(userId, from, to);
         return ResponseEntity.ok(total);
     }
 
     @GetMapping("/total")
-    public ResponseEntity<BigDecimal> getTotalAmountByDateRange(@RequestParam LocalDateTime from, @RequestParam LocalDateTime to) {
+    public ResponseEntity<BigDecimal> getTotalAmountByDateRange(@RequestParam Instant from, @RequestParam Instant to) {
         BigDecimal total = paymentService.getTotalAmountByDateRange(from, to);
         return ResponseEntity.ok(total);
     }

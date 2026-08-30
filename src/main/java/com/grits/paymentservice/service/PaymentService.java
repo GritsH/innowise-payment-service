@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +33,7 @@ public class PaymentService {
         PaymentStatus status = Integer.parseInt(randomNumber) % 2 == 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
 
         Payment payment = paymentMapper.toEntity(request);
-        payment.setTimestamp(LocalDateTime.now());
+        payment.setTimestamp(Instant.now());
         payment.setStatus(status);
         Payment savedPayment = paymentDao.createPayment(payment);
 
@@ -56,11 +56,11 @@ public class PaymentService {
         return payments.stream().map(paymentMapper::toResponse).toList();
     }
 
-    public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to) {
+    public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, Instant from, Instant to) {
         return paymentDao.getTotalAmountByUserIdAndDateRange(userId, from, to);
     }
 
-    public BigDecimal getTotalAmountByDateRange(LocalDateTime from, LocalDateTime to) {
+    public BigDecimal getTotalAmountByDateRange(Instant from, Instant to) {
         return paymentDao.getTotalAmountByDateRange(from, to);
     }
 }

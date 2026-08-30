@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,8 +21,8 @@ public interface PaymentRepository extends MongoRepository<Payment, UUID> {
     List<Payment> findAllByUserIdAndStatus(UUID userId, PaymentStatus status);
 
     @Query("{ 'user_id': ?0, 'timestamp': { $gte: ?1, $lte: ?2 } }")
-    List<Payment> findPaymentsByUserIdAndDateRange(UUID userId, LocalDateTime from, LocalDateTime to);
+    List<Payment> findPaymentsByUserIdAndDateRange(UUID userId, Instant from, Instant to);
 
     @Query("{ 'timestamp': { $gte: ?0, $lte: ?1 } }")
-    List<Payment> findPaymentsByDateRange(LocalDateTime from, LocalDateTime to);
+    List<Payment> findPaymentsByDateRange(Instant from, Instant to);
 }

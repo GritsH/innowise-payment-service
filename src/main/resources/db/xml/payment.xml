@@ -24,7 +24,7 @@
                 { user_id: 1, order_id: 1 }
             </mongodb:keys>
             <mongodb:options>
-                { name: "idx_user_id_order_id" }
+                { name: "idx_user_id_order_id", unique: true }
             </mongodb:options>
         </mongodb:createIndex>
 

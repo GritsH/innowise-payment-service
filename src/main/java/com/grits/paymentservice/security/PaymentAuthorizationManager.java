@@ -5,6 +5,7 @@ import com.grits.paymentservice.dao.PaymentDao;
 import com.grits.paymentservice.model.response.UserResponse;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
     private final PaymentDao paymentDao;
@@ -52,6 +54,9 @@ public class PaymentAuthorizationManager implements AuthorizationManager<Request
             return new AuthorizationDecision(false);
         } catch (IllegalArgumentException | FeignException.NotFound e) {
             return new AuthorizationDecision(false);
+        } catch (FeignException e) {
+            log.error("Request failed during authorization", e);
+            throw e;
         }
     }
 }

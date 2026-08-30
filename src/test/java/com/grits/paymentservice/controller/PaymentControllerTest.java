@@ -18,7 +18,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -123,7 +124,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     @DisplayName("should return payment by order id")
     void returnPaymentByOrderId() {
         try {
-            LocalDateTime timestamp = LocalDateTime.of(2026, 8, 21, 10, 0);
+            Instant timestamp = Instant.parse("2026-08-21T10:00:00Z");
             Payment payment = createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), timestamp);
             stubUserByEmail();
 
@@ -134,7 +135,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
                     .andExpect(jsonPath("$.orderId").value(payment.getOrderId().toString()))
                     .andExpect(jsonPath("$.userId").value(USER_ID.toString()))
                     .andExpect(jsonPath("$.status").value("SUCCESS"))
-                    .andExpect(jsonPath("$.timestamp").value(timestamp.withSecond(0) + ":00"))
+                    .andExpect(jsonPath("$.timestamp").value(timestamp.toString()))
                     .andExpect(jsonPath("$.paymentAmount").value(100.00));
 
             Payment savedPayment = paymentRepository.findById(payment.getId()).orElseThrow();
@@ -154,8 +155,8 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     @DisplayName("should return payments by user id")
     void returnPaymentsByUserId() {
         try {
-            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), LocalDateTime.now());
-            createPayment(USER_ID, PaymentStatus.FAILED, new BigDecimal("50.00"), LocalDateTime.now());
+            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), Instant.now());
+            createPayment(USER_ID, PaymentStatus.FAILED, new BigDecimal("50.00"), Instant.now());
             stubUserByEmail();
 
             mockMvc.perform(get("/v1/payments/user/{userId}", USER_ID)
@@ -171,7 +172,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     @DisplayName("should return 403 when user accesses another user's payment by order id")
     void return403WhenUserAccessesAnotherUsersPayment() {
         try {
-            Payment payment = createPayment(OTHER_USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), LocalDateTime.now());
+            Payment payment = createPayment(OTHER_USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), Instant.now());
             stubUserByEmail();
 
             mockMvc.perform(get("/v1/payments/order/{orderId}", payment.getOrderId())
@@ -186,11 +187,11 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     @DisplayName("should return total amount by user id and date range")
     void returnTotalAmountByUserIdAndDateRange() {
         try {
-            LocalDateTime baseTime = LocalDateTime.of(2026, 8, 21, 10, 0, 0, 0);
-            LocalDateTime from = baseTime.minusHours(3);
-            LocalDateTime to = baseTime.plusHours(3);
-            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), baseTime.minusHours(2));
-            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("200.00"), baseTime.minusHours(1));
+            Instant baseTime = Instant.parse("2026-08-21T10:00:00Z");
+            Instant from = baseTime.minus(3, ChronoUnit.HOURS);
+            Instant to = baseTime.plus(3, ChronoUnit.HOURS);
+            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), baseTime.minus(2, ChronoUnit.HOURS));
+            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("200.00"), baseTime.minus(1, ChronoUnit.HOURS));
 
             stubUserByEmail();
 
@@ -209,12 +210,12 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     @DisplayName("should return total amount by date range for admin")
     void returnTotalAmountByDateRangeForAdmin() {
         try {
-            LocalDateTime baseTime = LocalDateTime.of(2026, 8, 21, 10, 0, 0, 0);
-            LocalDateTime from = baseTime.minusHours(3);
-            LocalDateTime to = baseTime.plusHours(3);
-            createPayment(OTHER_USER_ID, PaymentStatus.SUCCESS, new BigDecimal("50.00"), baseTime.minusHours(1));
-            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), baseTime.minusHours(2));
-            createPayment(USER_ID, PaymentStatus.FAILED, new BigDecimal("200.00"), baseTime.plusHours(1));
+            Instant baseTime = Instant.parse("2026-08-21T10:00:00Z");
+            Instant from = baseTime.minus(3, ChronoUnit.HOURS);
+            Instant to = baseTime.plus(3, ChronoUnit.HOURS);
+            createPayment(OTHER_USER_ID, PaymentStatus.SUCCESS, new BigDecimal("50.00"), baseTime.minus(1, ChronoUnit.HOURS));
+            createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), baseTime.minus(2, ChronoUnit.HOURS));
+            createPayment(USER_ID, PaymentStatus.FAILED, new BigDecimal("200.00"), baseTime.plus(1, ChronoUnit.HOURS));
 
             stubUserByEmail();
 
@@ -250,7 +251,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
         return request;
     }
 
-    private Payment createPayment(UUID userId, PaymentStatus status, BigDecimal amount, LocalDateTime timestamp) {
+    private Payment createPayment(UUID userId, PaymentStatus status, BigDecimal amount, Instant timestamp) {
         Payment payment = new Payment();
 
         payment.setOrderId(UUID.randomUUID());
