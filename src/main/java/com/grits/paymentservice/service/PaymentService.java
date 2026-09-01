@@ -31,10 +31,13 @@ public class PaymentService {
     private final PaymentKafkaProducer paymentKafkaProducer;
 
     public PaymentResponse createPayment(CreatePaymentRequest request) {
-        String randomNumber = randomNumberClient.getRandomNumber(1, 1, 100, 1, 10, "plain", "new").trim();
-        PaymentStatus status = Integer.parseInt(randomNumber) % 2 == 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
-
         Payment payment = paymentMapper.toEntity(request);
+        payment.setStatus(PaymentStatus.PENDING);
+
+        String randomNumber = randomNumberClient.getRandomNumber(1, 1, 100, 1, 10, "plain", "new").trim();
+        boolean isPaymentSuccessful = Integer.parseInt(randomNumber) % 2 == 0;
+        PaymentStatus status = isPaymentSuccessful ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
+
         payment.setTimestamp(Instant.now());
         payment.setStatus(status);
         Payment savedPayment = paymentDao.createPayment(payment);
