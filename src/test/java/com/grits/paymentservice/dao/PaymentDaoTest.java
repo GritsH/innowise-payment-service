@@ -12,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,6 +24,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -34,14 +39,13 @@ class PaymentDaoTest {
     @InjectMocks
     private PaymentDao paymentDao;
 
-    private UUID paymentId;
     private UUID orderId;
     private UUID userId;
     private Payment payment;
 
     @BeforeEach
     void setUp() {
-        paymentId = UUID.randomUUID();
+        UUID paymentId = UUID.randomUUID();
         orderId = UUID.randomUUID();
         userId = UUID.randomUUID();
 
@@ -91,27 +95,29 @@ class PaymentDaoTest {
     @Test
     @DisplayName("should get payments by user id")
     void getPaymentsByUserId() {
-        List<Payment> payments = List.of(payment);
+        Page<Payment> payments = new PageImpl<>(List.of(payment));
 
-        when(paymentRepository.findAllByUserId(userId)).thenReturn(payments);
+        when(paymentRepository.findAllByUserId(eq(userId), any(Pageable.class))).thenReturn(payments);
 
-        List<Payment> result = paymentDao.getPaymentsByUserId(userId);
+        Page<Payment> result = paymentDao.getPaymentsByUserId(userId);
 
         assertThat(result).isNotNull().containsExactly(payment);
 
-        verify(paymentRepository).findAllByUserId(userId);
+        verify(paymentRepository).findAllByUserId(eq(userId), any(Pageable.class));
     }
 
     @Test
     @DisplayName("should return empty list when user has no payments")
     void returnEmptyListWhenUserHasNoPayments() {
-        when(paymentRepository.findAllByUserId(userId)).thenReturn(List.of());
+        Page<Payment> payments = new PageImpl<>(List.of());
 
-        List<Payment> result = paymentDao.getPaymentsByUserId(userId);
+        when(paymentRepository.findAllByUserId(eq(userId), any(Pageable.class))).thenReturn(payments);
+
+        Page<Payment> result = paymentDao.getPaymentsByUserId(userId);
 
         assertThat(result).isEmpty();
 
-        verify(paymentRepository).findAllByUserId(userId);
+        verify(paymentRepository).findAllByUserId(eq(userId), any(Pageable.class));
     }
 
     @Test
@@ -130,29 +136,30 @@ class PaymentDaoTest {
     @DisplayName("should get payments by user id and status")
     void getPaymentsByUserIdAndStatus() {
         String status = "SUCCESS";
-        List<Payment> payments = List.of(payment);
+        Page<Payment> payments = new PageImpl<>(List.of(payment));
 
-        when(paymentRepository.findAllByUserIdAndStatus(userId, PaymentStatus.SUCCESS)).thenReturn(payments);
+        when(paymentRepository.findAllByUserIdAndStatus(eq(userId), eq(PaymentStatus.SUCCESS), any(Pageable.class))).thenReturn(payments);
 
-        List<Payment> result = paymentDao.getPaymentsByUserIdStatus(userId, status);
+        Page<Payment> result = paymentDao.getPaymentsByUserIdStatus(userId, status);
 
         assertThat(result).isNotNull().containsExactly(payment);
 
-        verify(paymentRepository).findAllByUserIdAndStatus(userId, PaymentStatus.SUCCESS);
+        verify(paymentRepository).findAllByUserIdAndStatus(eq(userId), eq(PaymentStatus.SUCCESS), any(Pageable.class));
     }
 
     @Test
     @DisplayName("should accept lowercase payment status")
     void acceptLowercasePaymentStatus() {
         String status = "success";
+        Page<Payment> payments = new PageImpl<>(List.of(payment));
 
-        when(paymentRepository.findAllByUserIdAndStatus(userId, PaymentStatus.SUCCESS)).thenReturn(List.of(payment));
+        when(paymentRepository.findAllByUserIdAndStatus(eq(userId), eq(PaymentStatus.SUCCESS), any(Pageable.class))).thenReturn(payments);
 
-        List<Payment> result = paymentDao.getPaymentsByUserIdStatus(userId, status);
+        Page<Payment> result = paymentDao.getPaymentsByUserIdStatus(userId, status);
 
         assertThat(result).containsExactly(payment);
 
-        verify(paymentRepository).findAllByUserIdAndStatus(userId, PaymentStatus.SUCCESS);
+        verify(paymentRepository).findAllByUserIdAndStatus(eq(userId), eq(PaymentStatus.SUCCESS), any(Pageable.class));
     }
 
     @Test
@@ -174,15 +181,15 @@ class PaymentDaoTest {
         payment1.setPaymentAmount(new BigDecimal("100.00"));
         Payment payment2 = new Payment();
         payment2.setPaymentAmount(new BigDecimal("200.00"));
-        List<Payment> payments = List.of(payment1, payment2);
+        Page<Payment> payments = new PageImpl<>(List.of(payment1, payment2));
 
-        when(paymentRepository.findPaymentsByUserIdAndDateRange(userId, from, to)).thenReturn(payments);
+        when(paymentRepository.findPaymentsByUserIdAndDateRange(eq(userId), eq(from), eq(to), eq(Pageable.unpaged()))).thenReturn(payments);
 
         BigDecimal result = paymentDao.getTotalAmountByUserIdAndDateRange(userId, from, to);
 
         assertThat(result).isEqualByComparingTo(new BigDecimal("300.00"));
 
-        verify(paymentRepository).findPaymentsByUserIdAndDateRange(userId, from, to);
+        verify(paymentRepository).findPaymentsByUserIdAndDateRange(eq(userId), eq(from), eq(to), eq(Pageable.unpaged()));
     }
 
     @Test
@@ -194,14 +201,14 @@ class PaymentDaoTest {
         payment1.setPaymentAmount(new BigDecimal("100.00"));
         Payment payment2 = new Payment();
         payment2.setPaymentAmount(new BigDecimal("200.00"));
-        List<Payment> payments = List.of(payment1, payment2);
+        Page<Payment> payments = new PageImpl<>(List.of(payment1, payment2));
 
-        when(paymentRepository.findPaymentsByDateRange(from, to)).thenReturn(payments);
+        when(paymentRepository.findPaymentsByDateRange(eq(from), eq(to), eq(Pageable.unpaged()))).thenReturn(payments);
 
         BigDecimal result = paymentDao.getTotalAmountByDateRange(from, to);
 
         assertThat(result).isEqualByComparingTo(new BigDecimal("300.00"));
 
-        verify(paymentRepository).findPaymentsByDateRange(from, to);
+        verify(paymentRepository).findPaymentsByDateRange(eq(from), eq(to), eq(Pageable.unpaged()));
     }
 }

@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -155,13 +157,13 @@ class PaymentServiceTest {
                 .userId(userId)
                 .status(PaymentStatus.FAILED)
                 .build();
-        List<Payment> payments = List.of(payment, secondPayment);
+        Page<Payment> payments = new PageImpl<>(List.of(payment, secondPayment));
 
         when(paymentDao.getPaymentsByUserId(userId)).thenReturn(payments);
         when(paymentMapper.toResponse(payment)).thenReturn(paymentResponse);
         when(paymentMapper.toResponse(secondPayment)).thenReturn(secondResponse);
 
-        List<PaymentResponse> result = paymentService.getPaymentsByUserId(userId);
+        Page<PaymentResponse> result = paymentService.getPaymentsByUserId(userId);
 
         assertThat(result).containsExactly(paymentResponse, secondResponse);
 
@@ -174,11 +176,12 @@ class PaymentServiceTest {
     @DisplayName("should get payments by user id and status")
     void getPaymentsByUserIdAndStatus() {
         String status = "SUCCESS";
+        Page<Payment> payments = new PageImpl<>(List.of(payment));
 
-        when(paymentDao.getPaymentsByUserIdStatus(userId, status)).thenReturn(List.of(payment));
+        when(paymentDao.getPaymentsByUserIdStatus(userId, status)).thenReturn(payments);
         when(paymentMapper.toResponse(payment)).thenReturn(paymentResponse);
 
-        List<PaymentResponse> result = paymentService.getPaymentsByUserIdAndStatus(userId, status);
+        Page<PaymentResponse> result = paymentService.getPaymentsByUserIdAndStatus(userId, status);
 
         assertThat(result).containsExactly(paymentResponse);
 

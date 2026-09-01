@@ -9,6 +9,8 @@ import com.grits.paymentservice.mapper.PaymentMapper;
 import com.grits.paymentservice.model.request.CreatePaymentRequest;
 import com.grits.paymentservice.model.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -46,14 +48,16 @@ public class PaymentService {
         return paymentMapper.toResponse(payment);
     }
 
-    public List<PaymentResponse> getPaymentsByUserId(UUID userId) {
-        List<Payment> payments = paymentDao.getPaymentsByUserId(userId);
-        return payments.stream().map(paymentMapper::toResponse).toList();
+    public Page<PaymentResponse> getPaymentsByUserId(UUID userId) {
+        Page<Payment> payments = paymentDao.getPaymentsByUserId(userId);
+        List<PaymentResponse> responses = payments.stream().map(paymentMapper::toResponse).toList();
+        return new PageImpl<>(responses, payments.getPageable(), payments.getTotalElements());
     }
 
-    public List<PaymentResponse> getPaymentsByUserIdAndStatus(UUID userId, String status) {
-        List<Payment> payments = paymentDao.getPaymentsByUserIdStatus(userId, status);
-        return payments.stream().map(paymentMapper::toResponse).toList();
+    public Page<PaymentResponse> getPaymentsByUserIdAndStatus(UUID userId, String status) {
+        Page<Payment> payments = paymentDao.getPaymentsByUserIdStatus(userId, status);
+        List<PaymentResponse> responses = payments.stream().map(paymentMapper::toResponse).toList();
+        return new PageImpl<>(responses, payments.getPageable(), payments.getTotalElements());
     }
 
     public BigDecimal getTotalAmountByUserIdAndDateRange(UUID userId, Instant from, Instant to) {

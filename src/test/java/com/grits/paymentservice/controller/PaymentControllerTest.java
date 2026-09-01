@@ -71,7 +71,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
             stubRandomNumber("2");
             CreatePaymentRequest request = createPaymentRequest();
 
-            mockMvc.perform(post("/v1/payments")
+            mockMvc.perform(post("/api/v1/payments")
                             .with(userJwt())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -105,7 +105,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
             stubRandomNumber("3");
             CreatePaymentRequest request = createPaymentRequest();
 
-            mockMvc.perform(post("/v1/payments")
+            mockMvc.perform(post("/api/v1/payments")
                             .with(userJwt())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -128,7 +128,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
             Payment payment = createPayment(USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), timestamp);
             stubUserByEmail();
 
-            mockMvc.perform(get("/v1/payments/order/{orderId}", payment.getOrderId())
+            mockMvc.perform(get("/api/v1/payments/order/{orderId}", payment.getOrderId())
                             .with(userJwt()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(payment.getId().toString()))
@@ -159,10 +159,15 @@ class PaymentControllerTest extends AbstractIntegrationTest {
             createPayment(USER_ID, PaymentStatus.FAILED, new BigDecimal("50.00"), Instant.now());
             stubUserByEmail();
 
-            mockMvc.perform(get("/v1/payments/user/{userId}", USER_ID)
+            mockMvc.perform(get("/api/v1/payments/user/{userId}", USER_ID)
                             .with(userJwt()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(2));
+                    .andExpect(jsonPath("$.content").isArray())
+                    .andExpect(jsonPath("$.content.length()").value(2))
+                    .andExpect(jsonPath("$.totalElements").value(2))
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.size").value(10))
+                    .andExpect(jsonPath("$.number").value(0));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -175,7 +180,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
             Payment payment = createPayment(OTHER_USER_ID, PaymentStatus.SUCCESS, new BigDecimal("100.00"), Instant.now());
             stubUserByEmail();
 
-            mockMvc.perform(get("/v1/payments/order/{orderId}", payment.getOrderId())
+            mockMvc.perform(get("/api/v1/payments/order/{orderId}", payment.getOrderId())
                             .with(userJwt()))
                     .andExpect(status().isForbidden());
         } catch (Exception e) {
@@ -195,7 +200,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
 
             stubUserByEmail();
 
-            mockMvc.perform(get("/v1/payments/user/{userId}/total", USER_ID)
+            mockMvc.perform(get("/api/v1/payments/user/{userId}/total", USER_ID)
                             .param("from", from.toString())
                             .param("to", to.toString())
                             .with(userJwt()))
@@ -219,7 +224,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
 
             stubUserByEmail();
 
-            mockMvc.perform(get("/v1/payments/total")
+            mockMvc.perform(get("/api/v1/payments/total")
                             .param("from", from.toString())
                             .param("to", to.toString())
                             .with(adminJwt()))
@@ -234,7 +239,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     @DisplayName("should return 401 when user is not authenticated")
     void return401WhenUserIsNotAuthenticated() {
         try {
-            mockMvc.perform(get("/v1/payments/user/{userId}", USER_ID))
+            mockMvc.perform(get("/api/v1/payments/user/{userId}", USER_ID))
                     .andExpect(status().isUnauthorized());
         } catch (Exception e) {
             throw new RuntimeException(e);

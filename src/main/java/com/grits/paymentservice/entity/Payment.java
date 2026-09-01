@@ -29,8 +29,10 @@ public class Payment {
     @Field("user_id")
     private UUID userId;
 
+    @Field("status")
     private PaymentStatus status;
 
+    @Field("timestamp")
     private Instant timestamp;
 
     @Field("payment_amount")

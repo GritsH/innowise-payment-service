@@ -31,11 +31,11 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/v1/payments/order/{orderId}").access(paymentAuthorizationManager)
-                        .requestMatchers(HttpMethod.GET, "/v1/payments/user/{userId}").access(paymentAuthorizationManager)
-                        .requestMatchers(HttpMethod.GET, "/v1/payments/user/{userId}/status/{status}").access(paymentAuthorizationManager)
-                        .requestMatchers(HttpMethod.GET, "/v1/payments/user/{userId}/total").access(paymentAuthorizationManager)
-                        .requestMatchers(HttpMethod.GET, "/v1/payments/total").hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/order/{orderId}").access(paymentAuthorizationManager)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/user/{userId}").access(paymentAuthorizationManager)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/user/{userId}/status/{status}").access(paymentAuthorizationManager)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/user/{userId}/total").access(paymentAuthorizationManager)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/total").hasRole(ROLE_ADMIN)
 
                         .requestMatchers(HttpMethod.GET, "/actuator/health/**").permitAll()
                         .anyRequest().authenticated()

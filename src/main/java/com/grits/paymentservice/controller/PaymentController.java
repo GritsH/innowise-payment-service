@@ -5,6 +5,7 @@ import com.grits.paymentservice.model.response.PaymentResponse;
 import com.grits.paymentservice.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/payments")
+@RequestMapping("/api/v1/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -44,14 +44,14 @@ public class PaymentController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByUserId(@PathVariable UUID userId) {
-        List<PaymentResponse> response = paymentService.getPaymentsByUserId(userId);
+    public ResponseEntity<Page<PaymentResponse>> getPaymentsByUserId(@PathVariable UUID userId) {
+        Page<PaymentResponse> response = paymentService.getPaymentsByUserId(userId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user/{userId}/status/{status}")
-    public ResponseEntity<List<PaymentResponse>> getPaymentsByUserIdAndStatus(@PathVariable UUID userId, @PathVariable String status) {
-        List<PaymentResponse> response = paymentService.getPaymentsByUserIdAndStatus(userId, status);
+    public ResponseEntity<Page<PaymentResponse>> getPaymentsByUserIdAndStatus(@PathVariable UUID userId, @PathVariable String status) {
+        Page<PaymentResponse> response = paymentService.getPaymentsByUserIdAndStatus(userId, status);
         return ResponseEntity.ok(response);
     }
 
